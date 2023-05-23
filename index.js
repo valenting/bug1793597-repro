@@ -23,26 +23,8 @@ const server = http2.createSecureServer({
 server.on('stream', (stream, headers) => {
   // The default path of what you want to return.
   if (headers[':path'] === '/data') {
-
-    // Read the JSON file
-    fs.readFile('./data.json', 'utf8', (err, data) => {
-      if (err) {
-        console.error(err);
-        stream.respond({ ':status': 500 });
-        stream.end('Internal Server Error');
-        return;
-      }
-
-      const contentLength = Buffer.byteLength(data, 'utf8');
-      stream.respond({
-        'content-type': 'application/json',
-        'content-length': `${contentLength}`,
-        ':status': 200
-      });
-
-      // Send the JSON data as the response
-      stream.end(data);
-    });
+    stream.respond({ 'content-type': 'text/html', ":status": 200 });
+    stream.end('<h1>Very secure!</h1>');
   } else {
     stream.respond({ ':status': 302, "location": `http://${DOMAIN}:80/data` });
     stream.end('Not Found');
