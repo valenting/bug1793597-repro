@@ -3,7 +3,7 @@ const { execSync } = require('child_process');
 const fs = require('fs');
 
 // this is the domain. Change it to `example.com` or your own domain.
-const DOMAIN = 'localhost';
+const DOMAIN = 'bla.test';
 
 // If the cert was already generated, use it. Otherwise generate a new one.
 if (!fs.existsSync(`${DOMAIN}.key`) || !fs.existsSync(`${DOMAIN}.cert`)) {
@@ -44,11 +44,27 @@ server.on('stream', (stream, headers) => {
       stream.end(data);
     });
   } else {
-    stream.respond({ ':status': 404 });
+    stream.respond({ ':status': 302, "location": `http://${DOMAIN}:80/data` });
     stream.end('Not Found');
   }
 });
 
-server.listen(3000, () => {
-  console.log(`Server listening on https://${DOMAIN}:3000`);
+server.listen(443, () => {
+  console.log(`Server listening on https://${DOMAIN}:443`);
+});
+
+const http = require('http');
+
+const hserver = http.createServer((req, res) => {
+  if (req.url === '/data') {
+    res.writeHead(200, { 'Content-Type': 'text/html' });
+    res.end('<h1>Hello, World!</h1>');
+  } else {
+    res.writeHead(400);
+    res.end();
+  }
+});
+
+hserver.listen(80, () => {
+  console.log(`Server running on port 80`);
 });
